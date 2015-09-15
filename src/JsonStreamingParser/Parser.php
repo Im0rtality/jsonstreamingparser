@@ -531,11 +531,16 @@ class Parser
     private function endNumber()
     {
         $num = $this->buffer;
-        if (preg_match('/\./', $num)) {
-            $num = (float) ($num);
-        } else {
-            $num = (int) ($num);
+
+        if (ctype_digit($num) && ((float)$num === (float)((int)$num))) {
+            // natural number PHP_INT_MIN < $num < PHP_INT_MAX
+            $num = (int)$num;
         }
+        else {
+            // real number or natural number outside PHP_INT_MIN ... PHP_INT_MAX
+            $num = (float)$num;
+        }
+
         $this->listener->value($num);
 
         $this->buffer = '';
